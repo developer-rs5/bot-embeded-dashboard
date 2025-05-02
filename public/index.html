@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blaze Town - Discord Embed Sender</title>
+    <style>
+        :root {
+            --primary: #00bcd4;
+            --primary-dark: #008394;
+            --background: #121212;
+            --surface: #1e1e1e;
+            --surface-light: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --error: #cf6679;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo h1 {
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+        }
+
+        .login-box {
+            background-color: var(--surface);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            width: 350px;
+            text-align: center;
+            border-top: 3px solid var(--primary);
+        }
+
+        .login-box h2 {
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background-color: var(--surface-light);
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .login-box button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .error-message {
+            color: var(--error);
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-section, .preview-section {
+            background-color: var(--surface);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-title {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 18px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--surface-light);
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-picker input {
+            flex: 1;
+        }
+
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            border: 1px solid #333;
+        }
+
+        .send-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .send-button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .preview-container {
+            background-color: #2f3136;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 400px;
+            position: relative;
+        }
+
+        .discord-embed {
+            background-color: #2f3136;
+            border-left: 4px solid var(--embed-color, #5865F2);
+            border-radius: 4px;
+            padding: 8px 16px 8px 12px;
+            margin-bottom: 10px;
+            max-width: 520px;
+        }
+
+        .embed-header {
+            display: flex;
+            margin-bottom: 8px;
+        }
+
+        .embed-author {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .embed-author img {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .embed-title {
+            font-weight: 600;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .embed-title a {
+            color: #00aff4;
+            text-decoration: none;
+        }
+
+        .embed-description {
+            color: #dcddde;
+            margin-bottom: 8px;
+            white-space: pre-line;
+        }
+
+        .embed-image {
+            max-width: 100%;
+            border-radius: 4px;
+            margin-top: 8px;
+        }
+
+        .embed-thumbnail {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            width: 80px;
+            height: 80px;
+            border-radius: 4px;
+        }
+
+        .embed-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .embed-field {
+            color: #dcddde;
+        }
+
+        .embed-field.inline {
+            display: inline-block;
+            width: auto;
+        }
+
+        .embed-field-name {
+            font-weight: 600;
+        }
+
+        .embed-footer {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+            color: #a3a6aa;
+            font-size: 12px;
+        }
+
+        .embed-footer img {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .add-field-btn {
+            background-color: var(--surface-light);
+            color: var(--text-primary);
+            border: 1px dashed #444;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        .add-field-btn:hover {
+            background-color: #333;
+        }
+
+        .field-item {
+            background-color: var(--surface-light);
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .remove-field {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            color: var(--error);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 16px;
+        }
+
+        .logout-btn {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .status-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            display: none;
+        }
+
+        .success {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border: 1px solid #2ecc71;
+        }
+
+        .error {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-container" id="login-container">
+            <div class="login-box">
+                <div class="logo">
+                    <img src="https://i.imgur.com/J7Zx7zA.png" alt="Blaze Town Logo">
+                    <h1>Blaze Town</h1>
+                </div>
+                <h2>Embed Dashboard</h2>
+                <input type="password" id="password" placeholder="Enter Dashboard Password">
+                <button id="login-btn">Login</button>
+                <div class="error-message" id="login-error"></div>
+            </div>
+        </div>
+
+        <div class="dashboard" id="dashboard">
+            <header>
+                <div class="logo">
+                    <img src="https://i.imgur.com/J7Zx7zA.png" alt="Blaze Town Logo">
+                    <h1>Blaze Town Embed Sender</h1>
+                </div>
+                <button class="logout-btn" id="logout-btn">Logout</button>
+            </header>
+
+            <div class="status-message" id="status-message"></div>
+
+            <div class="dashboard-grid">
+                <div class="form-section">
+                    <h2 class="section-title">Embed Configuration</h2>
+
+                    <div class="form-group">
+                        <label for="channel-select">Channel</label>
+                        <select id="channel-select">
+                            <option value="" disabled selected>Loading channels...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="embed-title">Title</label>
+                        <input type="text" id="embed-title" placeholder="Embed title">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="embed-url">Title URL</label>
+                        <input type="text" id="embed-url" placeholder="https://example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="embed-description">Description</label>
+                        <textarea id="embed-description" placeholder="Embed description (supports Markdown)"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="embed-author">Author Name</label>
+                        <input type="text" id="embed-author" placeholder="Author name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="embed-author-url">Author URL</label>
+                        <input type="text" id="embed-author-url" placeholder="https://example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="embed-author-icon">Author Icon URL</label>
+                        <input type="text" id="embed-author-icon" placeholder="https://example.com/image.png">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="embed-color">Color</label>
+                        <div class="color-picker">
+                            <input type="text" id="embed-color" value="#00bcd4" placeholder="Hex color code">
+                            <div class="color-preview" id="color-preview" style="background-color: #00bcd4;"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="embed-image">Image URL</label>
+                        <input type="text" id="embed-image" placeholder="https://example.com/large-image.png">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="embed-thumbnail">Thumbnail URL</label>
+                        <input type="text" id="embed-thumbnail" placeholder="https://example.com/thumbnail.png">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="embed-footer">Footer Text</label>
+                        <input type="text" id="embed-footer" placeholder="Footer text">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="embed-footer-icon">Footer Icon URL</label>
+                        <input type="text" id="embed-footer-icon" placeholder="https://example.com/footer-icon.png">
+                    </div>
+
+                    <h3 class="section-title">Fields</h3>
+                    <div id="fields-container">
+                        <!-- Fields will be added here dynamically -->
+                    </div>
+                    <div class="add-field-btn" id="add-field-btn">+ Add Field</div>
+
+                    <button class="send-button" id="send-embed-btn">Send Embed</button>
+                </div>
+
+                <!-- Preview Section -->
+                <div class="preview-section">
+                    <h2 class="section-title">Embed Preview</h2>
+                    <div class="preview-container">
+                        <div class="discord-embed" id="embed-preview">
+                            <!-- Preview will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_URL = window.location.hostname === 'localhost' 
+        ? 'http://localhost:3000' 
+        : window.location.origin;
+    let authToken = localStorage.getItem('blazetown_auth') || '';
+
+    // DOM Elements
+    const loginContainer = document.getElementById('login-container');
+    const dashboard = document.getElementById('dashboard');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('login-btn');
+    const loginError = document.getElementById('login-error');
+    const logoutBtn = document.getElementById('logout-btn');
+    const statusMessage = document.getElementById('status-message');
+    const channelSelect = document.getElementById('channel-select');
+    const sendEmbedBtn = document.getElementById('send-embed-btn');
+    const embedPreview = document.getElementById('embed-preview');
+    const colorPreview = document.getElementById('color-preview');
+
+    // Initialize
+    if (authToken) {
+        loginContainer.style.display = 'none';
+        dashboard.style.display = 'block';
+        loadChannels();
+    }
+
+    // Add event listeners to all form inputs
+    document.querySelectorAll('input, textarea, select').forEach(element => {
+        if (element.id !== 'password') {
+            element.addEventListener('input', updatePreview);
+        }
+    });
+
+    // Login functionality
+    loginBtn.addEventListener('click', async () => {
+        try {
+            const response = await fetch(`${API_URL}/api/channels`, {
+                headers: {
+                    'Authorization': `Bearer ${passwordInput.value}`
+                }
+            });
+            
+            if (response.ok) {
+                authToken = passwordInput.value;
+                localStorage.setItem('blazetown_auth', authToken);
+                loginContainer.style.display = 'none';
+                dashboard.style.display = 'block';
+                loadChannels();
+            } else {
+                const error = await response.json();
+                showStatus(error.error || 'Invalid password', 'error');
+            }
+        } catch (err) {
+            showStatus('Failed to connect to server', 'error');
+            console.error('Login error:', err);
+        }
+    });
+
+    // Load channels from server
+    async function loadChannels() {
+        try {
+            channelSelect.innerHTML = '<option value="" disabled selected>Loading channels...</option>';
+            
+            const response = await fetch(`${API_URL}/api/channels`, {
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                }
+            });
+            
+            if (response.ok) {
+                const channels = await response.json();
+                channelSelect.innerHTML = '<option value="" disabled selected>Select a channel</option>';
+                
+                channels.forEach(channel => {
+                    const option = document.createElement('option');
+                    option.value = channel.id;
+                    option.textContent = channel.name;
+                    channelSelect.appendChild(option);
+                });
+                updatePreview();
+            } else {
+                const error = await response.json();
+                showStatus(error.error || 'Failed to load channels', 'error');
+            }
+        } catch (err) {
+            showStatus('Connection error - try refreshing', 'error');
+            console.error('Channel load error:', err);
+        }
+    }
+
+    // Send embed to Discord
+    sendEmbedBtn.addEventListener('click', async () => {
+        const channelId = channelSelect.value;
+        if (!channelId) {
+            showStatus('Please select a channel', 'error');
+            return;
+        }
+
+        // Convert color from hex to decimal
+        let color = document.getElementById('embed-color').value;
+        color = color.startsWith('#') ? color.slice(1) : color;
+        color = parseInt(color, 16) || 0x00bcd4; // Default to cyan if invalid
+
+        // Collect all embed data
+        const embedData = {
+        title: document.getElementById('embed-title').value || undefined,
+        url: document.getElementById('embed-url').value || undefined,
+        description: document.getElementById('embed-description').value || undefined,
+        color: color,
+        author: {
+            name: document.getElementById('embed-author').value || undefined,
+            url: document.getElementById('embed-author-url').value || undefined,
+            icon_url: document.getElementById('embed-author-icon').value || undefined
+        },
+        image: {
+            url: document.getElementById('embed-image').value || undefined
+        },
+        thumbnail: {
+            url: document.getElementById('embed-thumbnail').value || undefined
+        },
+        footer: {
+            text: document.getElementById('embed-footer').value || undefined,
+            icon_url: document.getElementById('embed-footer-icon').value || undefined
+        },
+        fields: []
+    };
+
+    // Clean up empty values in author
+    if (!embedData.author.name) {
+        embedData.author = undefined;
+    } else {
+        if (!embedData.author.url) delete embedData.author.url;
+        if (!embedData.author.icon_url) delete embedData.author.icon_url;
+    }
+
+    // Clean up empty values in footer
+    if (!embedData.footer.text) {
+        embedData.footer = undefined;
+    } else {
+        if (!embedData.footer.icon_url) delete embedData.footer.icon_url;
+    }
+
+    // Clean up empty media
+    if (!embedData.image.url) embedData.image = undefined;
+    if (!embedData.thumbnail.url) embedData.thumbnail = undefined;
+
+        // Add fields
+        document.querySelectorAll('.field-item').forEach(field => {
+            const fieldId = field.id.split('-')[1];
+            const name = document.getElementById(`field-name-${fieldId}`).value;
+            const value = document.getElementById(`field-value-${fieldId}`).value;
+            const isInline = document.getElementById(`field-inline-${fieldId}`).checked;
+
+            if (name && value) {
+                embedData.fields.push({
+                    name,
+                    value,
+                    inline: isInline
+                });
+            }
+        });
+
+        try {
+            showStatus('Sending embed...', 'success');
+            const response = await fetch(`${API_URL}/api/embeds`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({
+                    channelId,
+                    embedData
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                showStatus('Embed sent successfully!', 'success');
+                // Reset color to default
+                document.getElementById('embed-color').value = '#00bcd4';
+                colorPreview.style.backgroundColor = '#00bcd4';
+                updatePreview();
+            } else {
+                showStatus(result.error || 'Failed to send embed', 'error');
+                console.error('API Error:', result);
+            }
+        } catch (err) {
+            showStatus('Network error - failed to send', 'error');
+            console.error('Send embed error:', err);
+        }
+    });
+        // Update embed preview
+        function updatePreview() {
+            const title = document.getElementById('embed-title').value;
+            const url = document.getElementById('embed-url').value;
+            const description = document.getElementById('embed-description').value;
+            const author = document.getElementById('embed-author').value;
+            const authorUrl = document.getElementById('embed-author-url').value;
+            const authorIcon = document.getElementById('embed-author-icon').value;
+            const color = document.getElementById('embed-color').value || '#00bcd4';
+            const image = document.getElementById('embed-image').value;
+            const thumbnail = document.getElementById('embed-thumbnail').value;
+            const footer = document.getElementById('embed-footer').value;
+            const footerIcon = document.getElementById('embed-footer-icon').value;
+    
+            // Set embed color
+            embedPreview.style.borderLeftColor = color;
+    
+            // Clear previous preview
+            embedPreview.innerHTML = '';
+    
+            // Build author section
+            if (author) {
+                const authorElement = document.createElement('div');
+                authorElement.className = 'embed-author';
+                
+                if (authorIcon) {
+                    const img = document.createElement('img');
+                    img.src = authorIcon;
+                    img.alt = 'Author icon';
+                    img.onerror = () => img.style.display = 'none';
+                    authorElement.appendChild(img);
+                }
+                
+                const authorText = document.createElement('span');
+                if (authorUrl) {
+                    const link = document.createElement('a');
+                    link.href = authorUrl;
+                    link.textContent = author;
+                    authorText.appendChild(link);
+                } else {
+                    authorText.textContent = author;
+                }
+                
+                authorElement.appendChild(authorText);
+                embedPreview.appendChild(authorElement);
+            }
+    
+            // Build title
+            if (title) {
+                const titleElement = document.createElement('div');
+                titleElement.className = 'embed-title';
+                
+                if (url) {
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.textContent = title;
+                    titleElement.appendChild(link);
+                } else {
+                    titleElement.textContent = title;
+                }
+                
+                embedPreview.appendChild(titleElement);
+            }
+    
+            // Build description
+            if (description) {
+                const descElement = document.createElement('div');
+                descElement.className = 'embed-description';
+                descElement.textContent = description;
+                embedPreview.appendChild(descElement);
+            }
+    
+            // Build fields
+            const fieldsContainer = document.createElement('div');
+            fieldsContainer.className = 'embed-fields';
+            let hasFields = false;
+    
+            document.querySelectorAll('.field-item').forEach(field => {
+                const fieldId = field.id.split('-')[1];
+                const name = document.getElementById(`field-name-${fieldId}`).value;
+                const value = document.getElementById(`field-value-${fieldId}`).value;
+                const isInline = document.getElementById(`field-inline-${fieldId}`).checked;
+    
+                if (name && value) {
+                    hasFields = true;
+                    const fieldElement = document.createElement('div');
+                    fieldElement.className = `embed-field ${isInline ? 'inline' : ''}`;
+                    
+                    const nameElement = document.createElement('div');
+                    nameElement.className = 'embed-field-name';
+                    nameElement.textContent = name;
+                    
+                    const valueElement = document.createElement('div');
+                    valueElement.className = 'embed-field-value';
+                    valueElement.textContent = value;
+                    
+                    fieldElement.appendChild(nameElement);
+                    fieldElement.appendChild(valueElement);
+                    fieldsContainer.appendChild(fieldElement);
+                }
+            });
+    
+            if (hasFields) {
+                embedPreview.appendChild(fieldsContainer);
+            }
+    
+            // Build image
+            if (image) {
+                const imgElement = document.createElement('img');
+                imgElement.className = 'embed-image';
+                imgElement.src = image;
+                imgElement.alt = 'Embed image';
+                imgElement.onerror = () => imgElement.style.display = 'none';
+                embedPreview.appendChild(imgElement);
+            }
+    
+            // Build footer
+            if (footer) {
+                const footerElement = document.createElement('div');
+                footerElement.className = 'embed-footer';
+                
+                if (footerIcon) {
+                    const img = document.createElement('img');
+                    img.src = footerIcon;
+                    img.alt = 'Footer icon';
+                    img.onerror = () => img.style.display = 'none';
+                    footerElement.appendChild(img);
+                }
+                
+                const footerText = document.createElement('span');
+                footerText.textContent = footer;
+                footerElement.appendChild(footerText);
+                
+                embedPreview.appendChild(footerElement);
+            }
+    
+            // Build thumbnail
+            if (thumbnail) {
+                const existingThumbnail = document.querySelector('.embed-thumbnail');
+                if (existingThumbnail) existingThumbnail.remove();
+                
+                const thumbElement = document.createElement('img');
+                thumbElement.className = 'embed-thumbnail';
+                thumbElement.src = thumbnail;
+                thumbElement.alt = 'Thumbnail';
+                thumbElement.onerror = () => thumbElement.style.display = 'none';
+                embedPreview.appendChild(thumbElement);
+            }
+        }
+    
+        // Field management
+        function addEmbedField() {
+            const fieldId = Date.now();
+            const fieldHtml = `
+                <div class="field-item" id="field-${fieldId}">
+                    <button class="remove-field" onclick="removeField('${fieldId}')">×</button>
+                    <div class="form-group">
+                        <label for="field-name-${fieldId}">Field Name</label>
+                        <input type="text" id="field-name-${fieldId}" placeholder="Field name">
+                    </div>
+                    <div class="form-group">
+                        <label for="field-value-${fieldId}">Field Value</label>
+                        <textarea id="field-value-${fieldId}" placeholder="Field value"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="field-inline-${fieldId}"> Inline
+                        </label>
+                    </div>
+                </div>
+            `;
+            document.getElementById('fields-container').insertAdjacentHTML('beforeend', fieldHtml);
+            
+            // Add event listeners to new fields
+            document.getElementById(`field-name-${fieldId}`).addEventListener('input', updatePreview);
+            document.getElementById(`field-value-${fieldId}`).addEventListener('input', updatePreview);
+            document.getElementById(`field-inline-${fieldId}`).addEventListener('change', updatePreview);
+        }
+    
+        window.removeField = (fieldId) => {
+            document.getElementById(`field-${fieldId}`).remove();
+            updatePreview();
+        };
+    
+        // Show status message
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message ${type}`;
+            statusMessage.style.display = 'block';
+            
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 5000);
+        }
+    
+        // Logout functionality
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('blazetown_auth');
+            window.location.reload();
+        });
+    
+        // Color picker
+        document.getElementById('embed-color').addEventListener('input', (e) => {
+            document.getElementById('color-preview').style.backgroundColor = e.target.value;
+            updatePreview();
+        });
+    
+        // Add field button
+        document.getElementById('add-field-btn').addEventListener('click', addEmbedField);
+    
+        // Check existing auth
+        if (localStorage.getItem('blazetown_auth')) {
+            authToken = localStorage.getItem('blazetown_auth');
+            loginContainer.style.display = 'none';
+            dashboard.style.display = 'block';
+            loadChannels();
+        }
+    </script>
+</body>
+</html>
